@@ -29,6 +29,7 @@ use File::StripNondeterminism::handlers::pearregistry;
 use File::StripNondeterminism::handlers::png;
 use File::StripNondeterminism::handlers::javaproperties;
 use File::StripNondeterminism::handlers::zip;
+use File::StripNondeterminism::handlers::car;
 
 our($VERSION, $canonical_time);
 
@@ -81,6 +82,10 @@ sub get_normalizer_for_file {
 	if (m/\.(zip|pk3|whl|xpi)$/ && _get_file_type($_) =~ m/Zip archive data/) {
 		return \&File::StripNondeterminism::handlers::zip::normalize;
 	}
+	# car
+	if (m/\.car$/ && _get_file_type($_) =~ m/(Java|Zip) archive data/) {
+		return \&File::StripNondeterminism::handlers::car::normalize;
+	}
 	return undef;
 }
 
@@ -94,6 +99,7 @@ sub get_normalizer_by_name {
 	return \&File::StripNondeterminism::handlers::png::normalize if $_ eq 'png';
 	return \&File::StripNondeterminism::handlers::javaproperties::normalize if $_ eq 'javaproperties';
 	return \&File::StripNondeterminism::handlers::zip::normalize if $_ eq 'zip';
+	return \&File::StripNondeterminism::handlers::car::normalize if $_ eq 'car';
 	return undef;
 }
 
