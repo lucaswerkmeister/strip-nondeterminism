@@ -69,6 +69,7 @@ sub _car_normalize_timestamped_comments {
 	my $tempfile = File::Temp->new(DIR => dirname($filename));
 
 	my $modified = 0;
+    my $empty = 1;
 
 	while (defined(my $line = <$fh>)) {
         # strip away any line starting with '#': comment, some contain timestamp
@@ -77,7 +78,13 @@ sub _car_normalize_timestamped_comments {
 			next;
 		}
 		print $tempfile $line;
+        $empty = 0;
 	}
+
+    if ($empty) {
+        # prevent completely empty file
+        print $tempfile "# empty";
+    }
 
 	if ($modified) {
 		# Rename temporary file over the file
@@ -96,7 +103,9 @@ sub _car_normalize_member {
         File::StripNondeterminism::handlers::zip::normalize_member($member,
 				\&_car_normalize_manifest);        
     } elsif ($member->fileName() eq 'META-INF/mapping.txt' ||
-        $member->fileName() =~ /^META-INF\/maven\/.*\/pom\.properties$/) {
+             $member->fileName() eq 'META-INF/errors.txt' ||
+             $member->fileName() eq 'META-INF/hashes.txt' ||
+             $member->fileName() =~ /^META-INF\/maven\/.*\/pom\.properties$/) {
         File::StripNondeterminism::handlers::zip::normalize_member($member,
 				\&_car_normalize_timestamped_comments);
     } else {
